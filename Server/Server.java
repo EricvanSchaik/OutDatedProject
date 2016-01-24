@@ -3,43 +3,54 @@ package Server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import Client.ClientPeer;
+import Game.Game;
 
-/**
- * Server. 
- * @author  Theo Ruys
- * @version 2005.02.21
- */
-public class Server {
+import java.util.*;
+
+public class Server extends Thread {
 	
     private static final String USAGE
-        = "usage: " + Server.class.getName() + " <name> <port>";
-
-    /** Starts a Server-application. */
+        = "usage: " + Server.class.getName() + "<port>";
+    protected ServerSocket servsock;
+    public boolean isRunning = true;
+    private List<ServerPeer> clientpeers;
+    public List<Game> waiting;
+    public List<Game> running;
+    
     public static void main(String[] args) {
-    	if (args.length != 2) {
+    	if (args.length != 1) {
     		System.out.println(USAGE);
     		System.exit(0);
     	}
-    	
-    	String name = args[0];
     	ServerSocket servsock = null;
     	try {
     		servsock = new ServerSocket(Integer.parseInt(args[1]));
-    	}
-    	catch (IOException e) {
-    		e.printStackTrace();
-    	}
-    	try {
-    		Socket sock = servsock.accept();
-    		Peer serverpeer = new Peer(name, sock);
-    		Thread streamInputHandler = new Thread(serverpeer);
-    		streamInputHandler.start();
-    		serverpeer.handleTerminalInput();
-    		serverpeer.shutDown();
+    		Server server = new Server(servsock);
+    		server.run();
     	}
     	catch (IOException e) {
     		e.printStackTrace();
     	}
     }
+    
+    public Server (ServerSocket servsock) {
+    	this.servsock = servsock;
+    	clientpeers = new ArrayList<ServerPeer>();
+    }
+    
+    public void run() {
+    	
+    }
+    
+    public void shutDown() {
+    	try {
+    		servsock.close();
+    	}
+    	catch (IOException e) {
+    		e.printStackTrace();
+    	}
+    }
+    
 
-} // end of class Server
+}

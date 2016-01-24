@@ -1,18 +1,21 @@
 package Game;
 
 import java.util.*;
+import Client.ClientPeer;
 
 public class HumanPlayer extends Player {
 	
 	private View view;
+	private ClientPeer clientpeer;
 	
-    public HumanPlayer(String name, Game game) {
-    	super(name, game);
+    public HumanPlayer(ClientPeer clientpeer, Game game) {
+    	super(clientpeer.getName(), game);
     	this.view = new TUIView();
+    	this.clientpeer = clientpeer;
     }
     
-    public void trade(int[][] stenen) {
-    	
+    public void trade(List<Steen> stenen) {
+    	game.tradeStenen(stenen);
     }
     
     public boolean place(Steen steen, int[] vakje) {
