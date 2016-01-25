@@ -14,7 +14,7 @@ public class Server extends Thread {
         = "usage: " + Server.class.getName() + "<port>";
     protected ServerSocket servsock;
     public boolean isRunning = true;
-    private List<ServerPeer> clientpeers;
+    private List<ServerPeer> serverpeers;
     public List<Game> waiting;
     public List<Game> running;
     
@@ -36,11 +36,24 @@ public class Server extends Thread {
     
     public Server (ServerSocket servsock) {
     	this.servsock = servsock;
-    	clientpeers = new ArrayList<ServerPeer>();
+    	serverpeers = new ArrayList<ServerPeer>();
     }
     
     public void run() {
-    	
+    	while (isRunning) {
+    		try {
+    			Socket peersock = servsock.accept();
+    			ServerPeer serverpeer = new ServerPeer(peersock,this);
+    			serverpeers.add(serverpeer);
+    			serverpeer.run();
+    		}
+    		catch (IOException e) {
+    			e.printStackTrace();
+    		}
+    		if (!isRunning) {
+    			shutDown();
+    		}
+    	}
     }
     
     public void shutDown() {

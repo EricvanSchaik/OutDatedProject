@@ -12,41 +12,43 @@ import java.util.*;
 import Client.*;
 import Game.*;
 
-public class ServerPeer implements Runnable {
-    public static final String EXIT = "exit";
-
-    protected ServerSocket ssock;
-    public boolean isRunning = true;
-    private List<ClientPeer> clientpeers;
-    public List<Game> waiting;
-    public List<Game> running;
+public class ServerPeer extends Thread {
     
-    public ServerPeer(ServerSocket sockArg) throws IOException {
-    	ssock = sockArg;
-    	clientpeers = new ArrayList<ClientPeer>();
+	protected String name;
+    protected Socket sock;
+    protected BufferedReader in;
+    protected BufferedWriter out;
+    private Server server;
+    
+    public ServerPeer(Socket sockArg, Server server) throws IOException {
+    	this.sock = sockArg;
+    	in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+    	out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
+    	this.server = server;
     }
     
     public void run() {
-    	while (isRunning) {
+    	String input = null;
+    	while (server.isRunning) {
     		try {
-    			Socket clientsock = ssock.accept();
-    			ClientPeer clientpeer = new ClientPeer(clientsock, this);
-    			clientpeers.add(clientpeer);
-    			clientpeer.run();
+    			input = in.readLine();
     		}
     		catch (IOException e) {
     			e.printStackTrace();
     		}
-    		if (!isRunning) {
-    			shutDown();
-    		}
+    	}
+    	try {
+    		sock.close();
+    	}
+    	catch (IOException e) {
+    		e.printStackTrace();
     	}
     }
     
     
     public void shutDown() {
     	try {
-    		ssock.close();
+    		sock.close();
     	}
     	catch (IOException e) {
     		e.printStackTrace();
