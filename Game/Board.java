@@ -79,7 +79,7 @@ public class Board {
 		Steen steen = null;
 		Set<Map.Entry<Steen, int[]>> entryset = vakjes.entrySet();
 		for (Map.Entry<Steen, int[]> e: entryset) {
-			if (vakje.equals(e.getValue())) {
+			if (Arrays.equals(vakje, e.getValue())) {
 				steen = e.getKey();
 			}
 		}
