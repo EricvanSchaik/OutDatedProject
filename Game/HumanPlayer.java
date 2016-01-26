@@ -1,17 +1,15 @@
 package Game;
 
 import java.util.*;
-import Client.ClientPeer;
+import Server.ServerPeer;
 
 public class HumanPlayer extends Player {
 	
-	private View view;
-	private ClientPeer clientpeer;
+	private ServerPeer serverpeer;
 	
-    public HumanPlayer(ClientPeer clientpeer, Game game) {
-    	super(clientpeer.getName(), game);
-    	this.view = new TUIView();
-    	this.clientpeer = clientpeer;
+    public HumanPlayer(ServerPeer serverpeer, Game game) {
+    	super(serverpeer.getName(), game);
+    	this.serverpeer = serverpeer;
     }
     
     public void trade(List<Steen> stenen) {
@@ -24,11 +22,11 @@ public class HumanPlayer extends Player {
     }
     
 	public void determineMove() {
-		int choice = view.askForInput();
+		
 		
 	}
 	
-	public View getView() {
-		return this.view;
+	public ServerPeer getServerPeer() {
+		return serverpeer;
 	}
 }

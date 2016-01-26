@@ -51,6 +51,7 @@ public class ServerPeer extends Thread {
     	}
     	try {
     		sock.close();
+    		connected = false;
     	}
     	catch (IOException e) {
     		e.printStackTrace();
@@ -62,7 +63,7 @@ public class ServerPeer extends Thread {
 			if (connected) {
 				write("error 0");
 			}
-			if (!isValidName(specs)) {
+			else if (!isValidName(specs)) {
 				write("error 2");
 			}
 			else {
@@ -72,17 +73,30 @@ public class ServerPeer extends Thread {
 			}
 		}
     	else if (command.equals("join")) {
-    		if (joined) {
+    		if (joined || !(Integer.parseInt(specs) > 1 && Integer.parseInt(specs) < 5)) {
     			write("error 0");
     		}
     		else {
-    			
+    			join(Integer.parseInt(specs));
     		}
     	}
     }
     
     public void join(int gamesize) {
-    	
+    	boolean exists = false;
+    	for (Map.Entry<Game, List<Player>> e: server.waiting.entrySet()) {
+    		if (e.getKey().gameSize() == gamesize) {
+    			exists = true;
+    			Game game = e.getKey();
+    		}
+    	}
+    	if (exists) {
+    		game.addSpeler(new HumanPlayer(this, game));
+    		if (game.isRunning) {
+    			server.waiting.remove(game);
+    			server.running.put(game, game.getSpelers());
+    		}
+    	}
     }
     
     public void shutDown() {

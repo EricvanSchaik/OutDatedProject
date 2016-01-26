@@ -14,13 +14,16 @@ public class Game extends Thread {
 	private Player currentPlayer;
 	private Board board;
 	private Map<Player, Integer> scoreboard;
+	private int gamesize;
+	public boolean isRunning;
 	
 	//@ requires spelers.size() >= 1 && spelers.size() <= 4;
 	/**
 	 * Constructs a new game with existing players, but makes a new board, a new bag with cubes and a new scoreboard (by calling reset()).
 	 * @param spelers: the players participating in the game.
 	 */
-	public Game(List<Player> spelers) {
+	public Game(List<Player> spelers, int gamesize) {
+		this.gamesize = gamesize;
 		this.spelers = spelers;
 		this.board = new Board();
 		this.zak = new ArrayList<Steen>(108);
@@ -32,15 +35,30 @@ public class Game extends Thread {
 			}
 		}
 		reset();
+		if (spelers.size() == gamesize) {
+			run();
+		}
 	}
 	
 	/**
 	 * Starts the game if being called.
 	 */
 	public void run() {
-		
+		isRunning = true;
 	}
-
+	
+	public int gameSize() {
+		return gamesize;
+	}
+	
+	public List<Player> getSpelers() {
+		return spelers;
+	}
+	
+	public void addSpeler(Player speler) {
+		spelers.add(speler);
+	}
+	
 	/**
 	 * Places a given Steen on a given field, calls the similar method in Board and adds points to the current player.
 	 * @param steen: Steen to be placed.
@@ -78,11 +96,11 @@ public class Game extends Thread {
 		}
 		Player winner = highest.getKey();
 		if (winner instanceof HumanPlayer) {
-			((HumanPlayer) winner).getView().print("Congratulations! You've won!");	
+			((HumanPlayer) winner).getServerPeer().write("Congratulations! You've won!");	
 		}
 		for (Player s: spelers) {
 			if (s instanceof HumanPlayer) {
-				((HumanPlayer) s).getView().print("You've lost :( The winner is" + winner.getName());
+				((HumanPlayer) s).getServerPeer().write("You've lost :( The winner is" + winner.getName());
 			}
 		}
 	}
