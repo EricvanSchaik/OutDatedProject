@@ -13,8 +13,8 @@ public class Steen {
 	public int[] getType() {
 		int[] typesteen;
 		typesteen = new int[2];
-		typesteen[0] = this.vorm;
-		typesteen[1] = this.kleur;		
+		typesteen[0] = this.kleur;
+		typesteen[1] = this.vorm;		
 		return typesteen;
 	}
 }

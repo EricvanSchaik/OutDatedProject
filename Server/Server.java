@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import Client.ClientPeer;
-import Game.Game;
+import Game.*;
 
 import java.util.*;
 
@@ -15,8 +15,8 @@ public class Server extends Thread {
     protected ServerSocket servsock;
     public boolean isRunning = true;
     private List<ServerPeer> serverpeers;
-    public List<Game> waiting;
-    public List<Game> running;
+    public Map<Game, List<Player>> waiting;
+    public Map<Game, List<Player>> running;
     
     public static void main(String[] args) {
     	if (args.length != 1) {
@@ -56,9 +56,18 @@ public class Server extends Thread {
     	}
     }
     
+    public void sendAllClients(String message) {
+    	for (ServerPeer sp: serverpeers) {
+    		sp.write(message);
+    	}
+    }
+    
+    
+    
     public void shutDown() {
     	try {
     		servsock.close();
+    		isRunning = false;
     	}
     	catch (IOException e) {
     		e.printStackTrace();
