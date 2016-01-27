@@ -24,12 +24,14 @@ public class ServerPeer extends Thread {
     private String[] commands = {"join", "hello", "place", "trade", "help"};
     private List<String> commandslist = Arrays.asList(commands);
     private boolean joined;
+    private Player humanplayer;
     
     public ServerPeer(Socket sockArg, Server server) throws IOException {
     	this.sock = sockArg;
     	in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
     	out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
     	this.server = server;
+    	this.humanplayer = new HumanPlayer(this);
     }
     
     public void run() {
@@ -80,6 +82,7 @@ public class ServerPeer extends Thread {
     			join(Integer.parseInt(specs));
     		}
     	}
+    	
     }
     
     public void join(int gamesize) {
@@ -91,11 +94,20 @@ public class ServerPeer extends Thread {
     		}
     	}
     	if (exists) {
-    		game.addSpeler(new HumanPlayer(this, game));
+    		game.addSpeler(humanplayer);
+    		humanplayer.newGame(game);
+    		joined = true;
     		if (game.isRunning) {
     			server.waiting.remove(game);
     			server.running.put(game, game.getSpelers());
     		}
+    	}
+    	else {
+    		List<Player> newlist = new ArrayList<Player>();
+    		newlist.add(humanplayer);
+    		Game newGame = new Game(newlist, gamesize);
+    		server.waiting.put(newGame, newlist);
+    		joined = true;
     	}
     }
     

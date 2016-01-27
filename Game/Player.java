@@ -34,8 +34,6 @@ public abstract class Player {
     	stenen.addAll(stenen);
     }
     
-    public abstract void determineMove();
-    
     public void tradeStenen(List<Steen> stenen) {
     	game.tradeStenen(stenen);
     }

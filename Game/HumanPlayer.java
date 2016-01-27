@@ -6,9 +6,10 @@ import Server.ServerPeer;
 public class HumanPlayer extends Player {
 	
 	private ServerPeer serverpeer;
+	private boolean decided;
 	
-    public HumanPlayer(ServerPeer serverpeer, Game game) {
-    	super(serverpeer.getName(), game);
+    public HumanPlayer(ServerPeer serverpeer) {
+    	super(serverpeer.getName(), null);
     	this.serverpeer = serverpeer;
     }
     
@@ -20,11 +21,6 @@ public class HumanPlayer extends Player {
     	boolean hasBeenPlaced = game.place(steen, vakje);
     	return hasBeenPlaced;
     }
-    
-	public void determineMove() {
-		
-		
-	}
 	
 	public ServerPeer getServerPeer() {
 		return serverpeer;

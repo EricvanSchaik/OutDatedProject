@@ -35,16 +35,13 @@ public class Game extends Thread {
 			}
 		}
 		reset();
-		if (spelers.size() == gamesize) {
-			run();
-		}
 	}
 	
 	/**
 	 * Starts the game if being called.
 	 */
 	public void run() {
-		isRunning = true;
+		
 	}
 	
 	public int gameSize() {
@@ -57,6 +54,10 @@ public class Game extends Thread {
 	
 	public void addSpeler(Player speler) {
 		spelers.add(speler);
+		if (spelers.size() == gamesize) {
+			isRunning = true;
+			run();
+		}
 	}
 	
 	/**

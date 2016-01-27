@@ -26,7 +26,7 @@ public class ClientPeer extends Thread {
     	this.serverpeer = serverpeer;
     }
     
-    public void run() {
+    /*public void run() {
     	String input = null;
     	while (serverpeer.isRunning) {
     		try {
@@ -42,7 +42,7 @@ public class ClientPeer extends Thread {
     	catch (IOException e) {
     		e.printStackTrace();
     	}
-    }
+    }*/
     
     
     /*public void handleTerminalInput() {
