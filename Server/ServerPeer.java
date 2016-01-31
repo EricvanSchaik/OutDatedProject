@@ -83,7 +83,7 @@ public class ServerPeer extends Observable implements Runnable {
     			join(Integer.parseInt(specs));
     		}
     	}
-    	else if (command.equals("place")) {
+    	else if (command.equals("place") || command.equals("trade")) {
     		if (!game.isRunning || !this.equals(game.getCurrentPlayer())) {
     			write("error 0");
     		}
@@ -165,8 +165,8 @@ public class ServerPeer extends Observable implements Runnable {
 	
 	public void determineMove(String command, String specs) {
 		move = new String[2];
-		move[1] = command;
-		move[2] = specs;
+		move[0] = command;
+		move[1] = specs;
 		notify();
 	}
 	
@@ -179,9 +179,20 @@ public class ServerPeer extends Observable implements Runnable {
 		stenen = new ArrayList<Steen>();
 	}
 	
-	public void makeMove() {
-		
-		
+	public boolean makeMove() {
+		boolean movemade = false;
+		if (game.getCurrentPlayer().equals(this)) {
+			if (move[0].equals("place")) {
+				
+			}
+			else if (move[1].equals("trade")) {
+				
+			}
+		}
+		else {
+			write("error 0");
+		}
+		return movemade;
 	}
 }	
 	

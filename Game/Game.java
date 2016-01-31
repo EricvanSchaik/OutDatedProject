@@ -65,15 +65,9 @@ public class Game extends Thread implements Observer {
 		currentPlayer = spelers.get(0);
 		while (!eindeSpel) {
 			while (!hasDecided) {
-				try {
-					Thread.sleep(1000);
-				}
-				catch (InterruptedException e) {
-					
-				}
+				currentPlayer.write("Your turn");
+				hasDecided = currentPlayer.makeMove();
 			}
-			currentPlayer.makeMove();
-			hasDecided = false;
 			currentPlayer = spelers.get((spelers.indexOf(currentPlayer) + 1)%spelers.size());
 		}
 		endGameMessage();
