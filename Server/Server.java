@@ -15,8 +15,8 @@ public class Server extends Thread {
     protected ServerSocket servsock;
     public boolean isRunning = true;
     private List<ServerPeer> serverpeers;
-    public Map<Game, List<Player>> waiting;
-    public Map<Game, List<Player>> running;
+    public Map<Game, List<ServerPeer>> waiting;
+    public Map<Game, List<ServerPeer>> running;
     
     public static void main(String[] args) {
     	if (args.length != 1) {

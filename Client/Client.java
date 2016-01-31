@@ -11,7 +11,7 @@ public class Client {
         = "usage: java week7.cmdline.Client <name> <address> <port>";
     
     /** Starts a Client application. */
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         if (args.length != 3) {
             System.out.println(USAGE);
             System.exit(0);
@@ -59,6 +59,6 @@ public class Client {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
     
 } // end of class Client

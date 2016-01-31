@@ -12,7 +12,7 @@ import java.util.*;
 import Client.*;
 import Game.*;
 
-public class ServerPeer extends Thread {
+public class ServerPeer extends Observable implements Runnable {
     
 	protected String name;
     protected Socket sock;
@@ -24,14 +24,15 @@ public class ServerPeer extends Thread {
     private String[] commands = {"join", "hello", "place", "trade", "help"};
     private List<String> commandslist = Arrays.asList(commands);
     private boolean joined;
-    private Player humanplayer;
+    private List<Steen> stenen;
+    private String move;
     
     public ServerPeer(Socket sockArg, Server server) throws IOException {
     	this.sock = sockArg;
     	in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
     	out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
     	this.server = server;
-    	this.humanplayer = new HumanPlayer(this);
+    	this.stenen = new ArrayList<Steen>();
     }
     
     public void run() {
@@ -82,20 +83,28 @@ public class ServerPeer extends Thread {
     			join(Integer.parseInt(specs));
     		}
     	}
+    	else if (command.equals("place")) {
+    		if (!game.isRunning || !this.equals(game.getCurrentPlayer())) {
+    			write("error 0");
+    		}
+    		else {
+    			
+    		}
+    	}
     	
     }
     
     public void join(int gamesize) {
     	boolean exists = false;
-    	for (Map.Entry<Game, List<Player>> e: server.waiting.entrySet()) {
+    	for (Map.Entry<Game, List<ServerPeer>> e: server.waiting.entrySet()) {
     		if (e.getKey().gameSize() == gamesize) {
     			exists = true;
     			Game game = e.getKey();
     		}
     	}
     	if (exists) {
-    		game.addSpeler(humanplayer);
-    		humanplayer.newGame(game);
+    		game.addSpeler(this);
+    		setGame(game);
     		joined = true;
     		if (game.isRunning) {
     			server.waiting.remove(game);
@@ -103,8 +112,8 @@ public class ServerPeer extends Thread {
     		}
     	}
     	else {
-    		List<Player> newlist = new ArrayList<Player>();
-    		newlist.add(humanplayer);
+    		List<ServerPeer> newlist = new ArrayList<ServerPeer>();
+    		newlist.add(this);
     		Game newGame = new Game(newlist, gamesize);
     		server.waiting.put(newGame, newlist);
     		joined = true;
@@ -132,6 +141,15 @@ public class ServerPeer extends Thread {
     	}
     }
     
+    public String getName() {
+    	return name;
+    }
+    
+    public void setName(String name) {
+    	this.name = name;
+    }
+    
+    
     public boolean isValidName(String name) {
     	if (commandslist.contains(name)) {
     		return false;
@@ -140,5 +158,28 @@ public class ServerPeer extends Thread {
     		return true;
     	}
     }
+    
+	public void addSteen(Steen steen) {
+		stenen.add(steen);
+	}
+	
+	public void determineMove(String move) {
+		this.move = move;
+		notify();
+	}
+	
+	public void setGame(Game game) {
+		
+		
+	}
+	
+	public void reset() {
+		stenen = new ArrayList<Steen>();
+	}
+	
+	public void makeMove() {
+		
+		
+	}
 }	
 	
