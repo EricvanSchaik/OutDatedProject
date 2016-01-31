@@ -99,10 +99,16 @@ public class Game extends Thread implements Observer {
 	 * @param vakje: Field on which the Steen needs to be placed.
 	 * @return true if the Steen has been placed, false if it is not.
 	 */
-	public boolean place(Steen steen, int[] vakje) {
-		boolean hasBeenPlaced = board.place(steen, vakje);
+	public boolean place(Map<Steen, int[]> steentjes) {
+		boolean hasBeenPlaced = true;
+		for (Map.Entry<Steen, int[]> e: steentjes.entrySet()) {
+			boolean placed = board.place(e.getKey(), e.getValue());
+			if (!placed) {
+				hasBeenPlaced = false;
+			}
+		}
 		Integer oldScore = scoreboard.get(currentPlayer);
-		Integer newScore = new Integer(oldScore.intValue()+calculatePoints(steen, vakje));
+		Integer newScore = new Integer(oldScore.intValue()+calculatePoints(steentjes));
 		scoreboard.put(currentPlayer, newScore);
 		return hasBeenPlaced;
 	}
@@ -113,13 +119,14 @@ public class Game extends Thread implements Observer {
 	 * @param vakje: Field given as argument of method place.
 	 * @return the points to be added to the current player.
 	 */
-	private int calculatePoints(Steen steen, int[] vakje) {
+	private int calculatePoints(Map<Steen, int[]> steentjes) {
 		return 0;
 	}
 	
 	public void noStonesLeft(ServerPeer speler) {
 		Integer oldScore = scoreboard.get(speler);
 		Integer newScore = new Integer(oldScore.intValue()+6);
+		scoreboard.put(currentPlayer, newScore);
 		eindeSpel = true;
 	}
 	
