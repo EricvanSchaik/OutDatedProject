@@ -116,10 +116,105 @@ public class Board {
 		}
 	}
 	
-	/**
-	 * Returns a textual representation of the board.
-	 */
+	private int getMaxX() {
+		int maxx = 0;
+		Set<Map.Entry<Steen, int[]>> entryset = vakjes.entrySet();
+		for (Map.Entry<Steen, int[]> e: entryset) {
+			int value = e.getValue()[0];
+			if (value > maxx){
+				maxx = value;
+			}
+		}
+		return maxx;
+	}
+	
+	private int getMinY() {
+		int maxy = 0;
+		Set<Map.Entry<Steen, int[]>> entryset = vakjes.entrySet();
+		for (Map.Entry<Steen, int[]> e: entryset) {
+			int value = e.getValue()[1];
+			if (value > maxy){
+				maxy = value;
+			}
+		}
+		return maxy;
+	}
+	
+	private int getMinX() {
+		int minx = 0;
+		Set<Map.Entry<Steen, int[]>> entryset = vakjes.entrySet();
+		for (Map.Entry<Steen, int[]> e: entryset) {
+			int value = e.getValue()[0];
+			if (value < minx){
+				minx = value;
+			}
+		}
+		return minx;
+	}
+	
+	private int getMaxY() {
+		int miny = 0;
+		Set<Map.Entry<Steen, int[]>> entryset = vakjes.entrySet();
+		for (Map.Entry<Steen, int[]> e: entryset) {
+			int value = e.getValue()[1];
+			if (value < miny){
+				miny = value;
+			}
+		}
+		return miny;
+	}
+	
+	private boolean isEmpty(int x, int y){
+		boolean empty = true;
+		Set<Map.Entry<Steen, int[]>> entryset = vakjes.entrySet();
+		for (Map.Entry<Steen, int[]> e: entryset){
+			int mapx = e.getValue()[0];
+			int mapy = e.getValue()[1];
+			if (mapx==x && mapy==y){
+				empty = false;
+			}
+		}
+		return empty;
+	}
+	
 	public String toString() {
-		return null;
+		if (isEmpty(0,0) == true){
+			return "";
+		}
+		else {
+			int minx = getMinX();
+			int maxx = getMaxX();
+			int miny = getMinY();
+			int maxy = getMaxY();
+			String streep = "";
+			for (int k = minx; k<(maxx); k++){streep = streep + "-----+";}
+			streep = streep + "-----";
+			String complete = "";
+			for (int i = maxy; i < (miny+1); i++){
+				String row = "";
+				for (int j = minx; j < (maxx+1); j++){
+					if (isEmpty(j,i) == false){
+						int[] field = {j,i};
+						Steen steen = getSteen(field);
+						int[] typesteen = steen.getType();
+						if (j==minx){row = " " + typesteen[0] + "," + typesteen[1] + " | ";}
+						else {
+							if (j==maxx){row = row + typesteen[0] + "," + typesteen[1];}
+							else{row = row + typesteen[0] + "," + typesteen[1] + " | "; }
+						}
+					}
+					else {
+						if (j==minx){row = "     | ";}
+						else{
+							if (j==maxx){}
+							else {row = row + "    | ";}
+						}
+					}
+				}	
+				if (i!=miny){complete = complete + row + "\n" + streep + "\n";}
+				else {complete = complete + row;}
+			}
+			return complete;
+		}
 	}
 }
