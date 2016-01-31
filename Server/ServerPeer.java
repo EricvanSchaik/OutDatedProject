@@ -25,7 +25,7 @@ public class ServerPeer extends Observable implements Runnable {
     private List<String> commandslist = Arrays.asList(commands);
     private boolean joined;
     private List<Steen> stenen;
-    private String move;
+    private String[] move;
     
     public ServerPeer(Socket sockArg, Server server) throws IOException {
     	this.sock = sockArg;
@@ -88,7 +88,7 @@ public class ServerPeer extends Observable implements Runnable {
     			write("error 0");
     		}
     		else {
-    			
+    			determineMove(command, specs);
     		}
     	}
     	
@@ -114,7 +114,7 @@ public class ServerPeer extends Observable implements Runnable {
     	else {
     		List<ServerPeer> newlist = new ArrayList<ServerPeer>();
     		newlist.add(this);
-    		Game newGame = new Game(newlist, gamesize);
+    		Game newGame = new Game(newlist, gamesize, this.server);
     		server.waiting.put(newGame, newlist);
     		joined = true;
     	}
@@ -163,13 +163,15 @@ public class ServerPeer extends Observable implements Runnable {
 		stenen.add(steen);
 	}
 	
-	public void determineMove(String move) {
-		this.move = move;
+	public void determineMove(String command, String specs) {
+		move = new String[2];
+		move[1] = command;
+		move[2] = specs;
 		notify();
 	}
 	
 	public void setGame(Game game) {
-		
+		this.game = game;
 		
 	}
 	

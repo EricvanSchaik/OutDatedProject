@@ -15,19 +15,23 @@ public class Game extends Thread implements Observer {
 	private List<Steen> zak;
 	private List<ServerPeer> spelers;
 	private ServerPeer currentPlayer;
+	private Server server;
 	private Board board;
 	private Map<ServerPeer, Integer> scoreboard;
 	private int gamesize;
 	public boolean isRunning;
+	private boolean hasDecided = false;
+	private boolean eindeSpel = false;
 	
 	//@ requires spelers.size() >= 1 && spelers.size() <= 4;
 	/**
 	 * Constructs a new game with existing players, but makes a new board, a new bag with cubes and a new scoreboard (by calling reset()).
 	 * @param spelers: the players participating in the game.
 	 */
-	public Game(List<ServerPeer> spelers, int gamesize) {
+	public Game(List<ServerPeer> spelers, int gamesize, Server server) {
 		this.gamesize = gamesize;
 		this.spelers = spelers;
+		this.server = server;
 		this.board = new Board();
 		this.zak = new ArrayList<Steen>(108);
 		for (int i=0; i<3; i++) {
@@ -56,8 +60,23 @@ public class Game extends Thread implements Observer {
 				Steen s = zak.get((int)Math.random()*zak.size());
 				p.addSteen(s);
 				zak.remove(s);
-			}			
+			}
 		}
+		currentPlayer = spelers.get(0);
+		while (!eindeSpel) {
+			while (!hasDecided) {
+				try {
+					Thread.sleep(1000);
+				}
+				catch (InterruptedException e) {
+					
+				}
+			}
+			currentPlayer.makeMove();
+			hasDecided = false;
+			currentPlayer = spelers.get((spelers.indexOf(currentPlayer) + 1)%spelers.size());
+		}
+		endGameMessage();
 	}
 	
 	public int gameSize() {
@@ -103,6 +122,13 @@ public class Game extends Thread implements Observer {
 	private int calculatePoints(Steen steen, int[] vakje) {
 		return 0;
 	}
+	
+	public void noStonesLeft(ServerPeer speler) {
+		Integer oldScore = scoreboard.get(speler);
+		Integer newScore = new Integer(oldScore.intValue()+6);
+		eindeSpel = true;
+	}
+	
 	
 	/**
 	 * When the game ends, this method is being called to inform the players.
@@ -167,11 +193,17 @@ public class Game extends Thread implements Observer {
 		for (ServerPeer s: spelers) {
 			scoreboard.put(s, new Integer(0));
 		}
+		eindeSpel = false;
 	}
 
 	
 	public void update(Observable o, Object arg) {
-		
+		if (o.equals(currentPlayer)) {
+			hasDecided = true;
+		}
+		else {
+			((ServerPeer) o).write("error 0");
+		}
 		
 	}
 }
