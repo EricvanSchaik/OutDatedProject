@@ -1,5 +1,7 @@
 package Game;
 
+import java.util.Arrays;
+
 public class Steen {
 
 	private int kleur;
@@ -31,6 +33,15 @@ public class Steen {
 		typesteen[0] = this.vorm;
 		typesteen[1] = this.kleur;		
 		return typesteen;
+	}
+	
+	public boolean equals(Steen steen) {
+		if (Arrays.equals(steen.getType(), this.getType())) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	
 }

@@ -21,7 +21,7 @@ public class ServerPeer extends Observable implements Runnable {
     private Server server;
     private boolean connected;
     public Game game;
-    private String[] commands = {"join", "hello", "place", "trade", "help"};
+    private String[] commands = {"join", "hello", "place", "trade"};
     private List<String> commandslist = Arrays.asList(commands);
     private boolean joined;
     private List<Steen> stenen;
@@ -40,7 +40,7 @@ public class ServerPeer extends Observable implements Runnable {
     	while (server.isRunning) {
     		try {
     			input = in.readLine();
-    			String[] command = input.split(" ");
+    			String[] command = input.split(" ",2);
     			if (commandslist.contains(command[0])) {
     				executeCommand(command[0],command[1]);
     			}
@@ -151,7 +151,7 @@ public class ServerPeer extends Observable implements Runnable {
     
     
     public boolean isValidName(String name) {
-    	if (commandslist.contains(name)) {
+    	if (commandslist.contains(name) || name.contains(" ")) {
     		return false;
     	}
     	else {
@@ -161,6 +161,10 @@ public class ServerPeer extends Observable implements Runnable {
     
 	public void addSteen(Steen steen) {
 		stenen.add(steen);
+	}
+	
+	public void removeSteen(Steen steen) {
+		stenen.remove(steen);
 	}
 	
 	public void determineMove(String command, String specs) {
@@ -179,14 +183,72 @@ public class ServerPeer extends Observable implements Runnable {
 		stenen = new ArrayList<Steen>();
 	}
 	
+	public Steen getSteen(int vorm, int kleur) throws InvalidArgumentException {
+		Steen compare = null;
+		Steen result = null;
+		boolean exist = false;
+		compare = new Steen(vorm, kleur);
+		for (Steen s: stenen) {
+			if (s.equals(compare)) {
+				result = s;
+				exist = true;
+			}
+		}
+		if (!exist) {
+			throw new InvalidArgumentException();
+		}
+		return result;
+	}
+	
 	public boolean makeMove() {
 		boolean movemade = false;
 		if (game.getCurrentPlayer().equals(this)) {
 			if (move[0].equals("place")) {
-				
+				Map<Steen, int[]> placingmap = new HashMap<Steen, int[]>();
+				String[] steenenplaats =  move[1].split(" ");
+				if ((steenenplaats.length % 2) == 0) {
+					write("error 0");
+				}
+				else {
+					for (int i = 0; i < steenenplaats.length; i = i + 2) {
+						String[] steen = steenenplaats[i].split(",");
+						if (!(steen.length == 2)) {
+							write("error 0");
+						}
+						else {
+							String[] plaatss = steenenplaats[i+1].split(",");
+							int[] plaatsi = new int[2];
+							plaatsi[0] = Integer.parseInt(plaatss[0]);
+							plaatsi[1] = Integer.parseInt(plaatss[1]);
+							try {
+								placingmap.put(getSteen(Integer.parseInt(steen[0]), Integer.parseInt(steen[1])), plaatsi);
+								stenen.remove(getSteen(Integer.parseInt(steen[0]), Integer.parseInt(steen[1])));
+							}
+							catch (InvalidArgumentException e) {
+								write("error 0");
+							}
+						}
+					}
+					movemade = game.place(placingmap);
+					
+				}
 			}
-			else if (move[1].equals("trade")) {
-				
+			else if (move[0].equals("trade")) {
+				List<Steen> tstenen = new ArrayList<Steen>();
+				String[] sstenen = move[1].split(" ");
+				for (int i = 0; i < sstenen.length; i++) {
+					String[] ssteen = sstenen[i].split(",");
+					try {
+						tstenen.add(getSteen(Integer.parseInt(ssteen[0]), Integer.parseInt(ssteen[1])));
+						stenen.remove(getSteen(Integer.parseInt(ssteen[0]), Integer.parseInt(ssteen[1])));
+					}
+					catch (InvalidArgumentException e) {
+						write("error 0");
+					}
+					
+				}
+				game.tradeStenen(tstenen);
+				movemade = true;
 			}
 		}
 		else {

@@ -164,7 +164,7 @@ public class Board {
 		return miny;
 	}
 	
-	private boolean isEmpty(int x, int y){
+	public boolean isEmpty(int x, int y){
 		boolean empty = true;
 		Set<Map.Entry<Steen, int[]>> entryset = vakjes.entrySet();
 		for (Map.Entry<Steen, int[]> e: entryset){

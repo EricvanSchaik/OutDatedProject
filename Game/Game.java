@@ -65,12 +65,19 @@ public class Game extends Thread implements Observer {
 		currentPlayer = spelers.get(0);
 		while (!eindeSpel) {
 			while (!hasDecided) {
-				currentPlayer.write("Your turn");
+				sendAllPlayers("turn " + currentPlayer.getName());
+				sendAllPlayers(board.toString());
 				hasDecided = currentPlayer.makeMove();
 			}
 			currentPlayer = spelers.get((spelers.indexOf(currentPlayer) + 1)%spelers.size());
 		}
 		endGameMessage();
+	}
+	
+	public void sendAllPlayers(String message) {
+		for (ServerPeer s: spelers) {
+			s.write(message);
+		}
 	}
 	
 	public int gameSize() {
@@ -119,8 +126,87 @@ public class Game extends Thread implements Observer {
 	 * @param vakje: Field given as argument of method place.
 	 * @return the points to be added to the current player.
 	 */
-	private int calculatePoints(Map<Steen, int[]> steentjes) {
-		return 0;
+	private int calculatePoints(Map<Steen, int[]> nieuwestenen) {
+		int score = 0;
+		boolean stop = false;
+		List<Integer> ybonus = new ArrayList<Integer>();
+		List<Integer> xbonus = new ArrayList<Integer>();
+		List<Integer> y = new ArrayList<Integer>();
+		List<Integer> x = new ArrayList<Integer>();
+		Set<Map.Entry<Steen, int[]>> entryset = nieuwestenen.entrySet();
+		for (Map.Entry<Steen, int[]> e: entryset){
+			int[] vakje = e.getValue();
+			if (!board.isEmpty(vakje[0], (vakje[1]+1)) || !board.isEmpty(vakje[0], (vakje[1]-1)) || !board.isEmpty((vakje[0]+1), vakje[1]) || !board.isEmpty((vakje[0]-1), vakje[1])){
+				score = score +2;
+			}
+			else {score = score +1;}
+			if (!x.contains(vakje[0])){
+			while (!stop){
+				for (int i=1; i<7; i++){
+					if (!board.isEmpty(vakje[0], vakje[1]+i)&&!nieuwestenen.containsKey(vakje[1]+i)){
+						score = score +1;
+					}
+					if (board.isEmpty(vakje[0], vakje[1]+i)){
+						stop = true;
+					}
+				}
+			}
+			stop = false;
+			while (!stop){
+				for (int i=1; i<7; i++){
+					if (!board.isEmpty(vakje[0], vakje[1]-i)&&!nieuwestenen.containsKey(vakje[1]-i)){
+						score = score +1;
+					}
+					if (board.isEmpty(vakje[0], vakje[1]-i)){
+						stop = true;
+					}
+				}
+			}
+			x.add(vakje[0]);
+			}
+			stop = false;
+			if (!y.contains(vakje[1])){
+			while (!stop){
+				for (int i=1; i<7; i++){
+					if (!board.isEmpty(vakje[0]+i, vakje[1])&&!nieuwestenen.containsKey(vakje[0]+i)){
+						score = score +1;
+					}
+					if (board.isEmpty(vakje[0]+i, vakje[1])){
+						stop = true;
+					}
+				}
+			}
+			stop = false;
+			while (!stop){
+				for (int i=1; i<7; i++){
+					if (!board.isEmpty(vakje[0]-i, vakje[1])&&!nieuwestenen.containsKey(vakje[0]-i)){
+						score = score +1;
+					}
+					if (board.isEmpty(vakje[0]-i, vakje[1])){
+						stop = true;
+					}
+				}
+			}
+			y.add(vakje[1]);
+			}
+			if (!ybonus.contains(vakje[1])){
+				for (int i = -5; i<1 ; i++){
+					if (!board.isEmpty(vakje[0]+i, vakje[1]) && !board.isEmpty(vakje[0]+i+1, vakje[1]) && !board.isEmpty(vakje[0]+i+2, vakje[1]) && !board.isEmpty(vakje[0]+i+3, vakje[1]) && !board.isEmpty(vakje[0]+i+4, vakje[1])&&!board.isEmpty(vakje[0]+i+5, vakje[1])){
+						score = score + 6;
+						ybonus.add(vakje[1]);
+					}
+				}
+			}
+			if (!xbonus.contains(vakje[0])){
+				for (int i = -5; i<1; i++){
+					if (!board.isEmpty(vakje[0], vakje[1]+i) && !board.isEmpty(vakje[0], vakje[1]+i+1) && !board.isEmpty(vakje[0], vakje[1]+i+2) && !board.isEmpty(vakje[0], vakje[1]+i+3) && !board.isEmpty(vakje[0], vakje[1]+i+4) && !board.isEmpty(vakje[0], vakje[1]+i+5)){
+						score = score + 6;
+						xbonus.add(vakje[0]);
+					}
+				}	
+			}
+		}
+		return score;
 	}
 	
 	public void noStonesLeft(ServerPeer speler) {
@@ -173,15 +259,6 @@ public class Game extends Thread implements Observer {
 		return teruggave;
 	}
 	
-	/*public boolean makeMove(String[] move) {
-		boolean succeed = true;
-		if (move[0].equals("place")) {
-			for (int i = 1; i < move.length; i= i+2) {
-				boolean succes = ;
-			}
-		}
-		return succeed;
-	}*/
 	
 	/**
 	 * Resets the game by resetting the scoreboard (given every Player 0 points) and by removing the Stenen owned by the players.
