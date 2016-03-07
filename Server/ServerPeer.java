@@ -223,6 +223,7 @@ public class ServerPeer extends Observable implements Runnable {
 							try {
 								placingmap.put(getSteen(Integer.parseInt(steen[0]), Integer.parseInt(steen[1])), plaatsi);
 								stenen.remove(getSteen(Integer.parseInt(steen[0]), Integer.parseInt(steen[1])));
+								stenen.add(game.getSteen());
 							}
 							catch (InvalidArgumentException e) {
 								write("error 0");
@@ -247,8 +248,11 @@ public class ServerPeer extends Observable implements Runnable {
 					}
 					
 				}
-				game.tradeStenen(tstenen);
+				stenen.addAll(game.tradeStenen(tstenen));
 				movemade = true;
+			}
+			if (stenen.isEmpty()) {
+				game.noStonesLeft(this);
 			}
 		}
 		else {

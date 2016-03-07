@@ -52,7 +52,7 @@ public class Game extends Thread implements Observer {
 	}
 	
 	/**
-	 * Starts the game if being called.
+	 * Starts the game if being called. Gets called by the last player to join. First gives the players random cubes, then keeps giving turns, until one of the players is out of cubes.
 	 */
 	public void run() {
 		for (ServerPeer p: spelers) {
@@ -73,27 +73,47 @@ public class Game extends Thread implements Observer {
 		}
 		endGameMessage();
 	}
-	
+	/**
+	 * Sends a message to all players participating in this game.
+	 * @param message: the message to be send.
+	 */
 	public void sendAllPlayers(String message) {
 		for (ServerPeer s: spelers) {
 			s.write(message);
 		}
 	}
 	
+	/**
+	 * Gives the amount of players needed to start the game.
+	 * @return amount of players to participate.
+	 */
 	public int gameSize() {
 		return gamesize;
 	}
 	
+	/**
+	 * Returns a list of players participating.
+	 * @return the list of players participating.
+	 */
 	public List<ServerPeer> getSpelers() {
 		return spelers;
 	}
 	
+	/**
+	 * Returns the player whose turn it is.
+	 * @return the player who can make a move.
+	 */
 	public ServerPeer getCurrentPlayer() {
 		return currentPlayer;
 	}
 	
+	/**
+	 * Adds a player to the list of players of this game. Gets called if a ServerPeer calls join.
+	 * @param speler: the player who wants to join.
+	 */
 	public void addSpeler(ServerPeer speler) {
 		spelers.add(speler);
+		speler.addObserver(this);
 		if (spelers.size() == gamesize) {
 			isRunning = true;
 			run();
@@ -101,7 +121,7 @@ public class Game extends Thread implements Observer {
 	}
 	
 	/**
-	 * Places a given Steen on a given field, calls the similar method in Board and adds points to the current player.
+	 * Places a given list of Steen on a given field, calls the similar method in Board and adds points to the current player.
 	 * @param steen: Steen to be placed.
 	 * @param vakje: Field on which the Steen needs to be placed.
 	 * @return true if the Steen has been placed, false if it is not.
@@ -121,9 +141,25 @@ public class Game extends Thread implements Observer {
 	}
 	
 	/**
+	 * Returns a Steen from the bag of cubes, and removes it from te bag.
+	 * @return a Steen from the bag of cubes.
+	 */
+	public Steen getSteen() {
+		Steen steen = null;
+		if (!zak.isEmpty()){
+			steen = zak.get((int)Math.random()*zak.size());
+			zak.remove(steen);
+		}
+		return steen;
+	}
+	
+	public boolean legeZak() {
+		return zak.isEmpty();
+	}
+	
+	/**
 	 * Determines the points to be added to the current player when the method place is being called upon.
-	 * @param steen: Steen given as argument of method place.
-	 * @param vakje: Field given as argument of method place.
+	 * @param nieuwestenen: the map of cubes and points where they need to be placed.
 	 * @return the points to be added to the current player.
 	 */
 	private int calculatePoints(Map<Steen, int[]> nieuwestenen) {
@@ -208,7 +244,10 @@ public class Game extends Thread implements Observer {
 		}
 		return score;
 	}
-	
+	/**
+	 * The method that is to be called by a player when he has no stones left.
+	 * @param speler: the player that calls the method.
+	 */
 	public void noStonesLeft(ServerPeer speler) {
 		Integer oldScore = scoreboard.get(speler);
 		Integer newScore = new Integer(oldScore.intValue()+6);
@@ -240,7 +279,7 @@ public class Game extends Thread implements Observer {
 	}
 	
 	/**
-	 * The trade method as alternative to the players as opposed to the place method. 
+	 * The trade method as alternative to the players to the place method. 
 	 * @param stenen: List of values of type Steen, to be placed in the bag.
 	 * @return List of values of type Steen, to be given back to the player.
 	 */
@@ -274,7 +313,9 @@ public class Game extends Thread implements Observer {
 		eindeSpel = false;
 	}
 
-	
+	/**
+	 * This method is called when a player has made his move (by the observable pattern).
+	 */
 	public void update(Observable o, Object arg) {
 		if (o.equals(currentPlayer)) {
 			hasDecided = true;
